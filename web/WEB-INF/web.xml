@@ -12,12 +12,20 @@
         <servlet-name>ListServlet</servlet-name>
         <servlet-class>com.mango.im.servlet.ListServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ListServlet2</servlet-name>
+        <servlet-class>com.mango.im.servlet.ListServlet2</servlet-class>
+    </servlet>
     <!--Servlet end-->
 
     <!--Servlet映射 start-->
     <servlet-mapping>
         <servlet-name>ListServlet</servlet-name>
         <url-pattern>/List.action</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListServlet2</servlet-name>
+        <url-pattern>/List2.action</url-pattern>
     </servlet-mapping>
     <!--Servlet映射 end-->
 
