@@ -1,15 +1,17 @@
 package com.mango.im.dao;
 
 import com.mango.im.bean.TMessage;
+import com.mango.im.db.DBAcess;
+import org.apache.ibatis.session.SqlSession;
 
-import java.sql.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Author：Mango Cheng
- * Date：2020/5/25
- * Time：20:59
+ * Date：2020/5/26
+ * Time：07:59
  * Description：信息DAO
  */
 public class MessageDAO {
@@ -22,49 +24,77 @@ public class MessageDAO {
      * @return
      */
     public List<TMessage> queryMessageList(String command, String description) {
+        // 1.定义
         List<TMessage> messageList = new ArrayList<>();
+        DBAcess dbAcess = new DBAcess();
+        SqlSession sqlSession = null;
         try {
-            // 1.加载数据库驱动：mysql-8
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://localhost:3306/micro_message";//数据库连接子协议
-            // 2.创建连接
-            Connection conn = DriverManager.getConnection(url, "root", "mysqlzkc123456");
-            // 3.创建、处理预处理语句
-            StringBuilder sql = new StringBuilder("select id,command,description,content from t_message where 1=1");
-            List<String> paramList = new ArrayList<>();     // 参数
-            if (command != null && !"".equals(command.trim())) {
-                sql.append(" and command = ?");
-                paramList.add(command);
-            }
-            if (description != null && !"".equals(description.trim())) {
-                sql.append(" and description like '%' ? '%'");
-                paramList.add(description);
-            }
-            PreparedStatement preparedStatement = conn.prepareStatement(sql.toString());
-            for (int i = 0; i < paramList.size(); i++) {
-                preparedStatement.setString(i + 1, paramList.get(i));
-            }
-            // 4.执行语句
-            ResultSet rs = preparedStatement.executeQuery();
-            // 5.读取结果集
-            while (rs.next()) {
-                TMessage message = new TMessage();
-                message.setId((short) rs.getInt(1));
-                message.setCommand(rs.getString(2));
-                message.setDescription(rs.getString(3));
-                message.setContent(rs.getString(4));
-                messageList.add(message);
-            }
-            // 6.关闭资源
-            rs.close();
-            preparedStatement.close();
-            conn.close();
+            // 2.获取
+            sqlSession = dbAcess.getSqlSession();
+            // 3.查询： namespace.id
+            TMessage message = new TMessage();
+            message.setCommand(command);
+            message.setDescription(description);
+            messageList = sqlSession.selectList("Message.queryMessageList",message);
             System.out.println("[Result:messageList]-" + messageList.toString());
-        } catch (ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            // 关闭资源
+            sqlSession.close();
         }
         return messageList;
+    }
+
+    /**
+     * 根据条件删除
+     * @param id
+     */
+    public void deleteOne(short id) {
+        // 1.定义
+        DBAcess dbAcess = new DBAcess();
+        SqlSession sqlSession = null;
+        try {
+            // 2.获取
+            sqlSession = dbAcess.getSqlSession();
+            // 3.删除：id
+            sqlSession.delete("Message.deleteOne",id);
+            // 4.提交
+            sqlSession.commit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭资源
+            sqlSession.close();
+        }
+    }
+
+    /**
+     * 根据条件批量删除
+     * @param idList
+     */
+    public void deleteBatch(List<Short> idList) {
+        // 1.定义
+        DBAcess dbAcess = new DBAcess();
+        SqlSession sqlSession = null;
+        try {
+            // 2.获取
+            sqlSession = dbAcess.getSqlSession();
+            // 3.删除
+            sqlSession.delete("Message.deleteBatch",idList);
+            // 4.提交
+            sqlSession.commit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭资源
+            sqlSession.close();
+        }
+    }
+
+    public static void main(String[] args) {
+        MessageDAO messageDAO = new MessageDAO();
+        messageDAO.queryMessageList("", "");
+//         Types.SMALLINT
     }
 }
