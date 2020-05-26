@@ -18,7 +18,7 @@ import java.util.List;
  * Description：列表Servlet  2-6章节
  */
 @SuppressWarnings("serial")
-public class ListServlet2 extends HttpServlet {
+public class ListServlet_2_6 extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
